@@ -1,0 +1,19 @@
+type MoveType = {
+  user_id: number;
+  position: number;
+  board_id: string;
+  id: number;
+};
+
+type TurnType = 'x' | 'o';
+
+type BoardType = {
+  id: string;
+  turn: TurnType;
+  user_1_id: number;
+  user_2_id: number | null;
+  winner: string;
+  created_at: string;
+};
+
+export { MoveType, BoardType, TurnType };
