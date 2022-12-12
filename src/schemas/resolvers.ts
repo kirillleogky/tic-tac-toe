@@ -9,7 +9,7 @@ const resolvers = {
     },
   },
   Query: {
-    users: async () => await getUsers(),
+    getUsers: async () => await getUsers(),
   },
 };
 
