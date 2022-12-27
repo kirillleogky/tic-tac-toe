@@ -44,7 +44,7 @@ const handleMove = async (
                   throw new Error('invalid move');
                 }
 
-                const isGameFinished = finishGame(
+                const gameResult = finishGame(
                   moveState,
                   position,
                   turn,
@@ -57,7 +57,7 @@ const handleMove = async (
                 };
                 const updatedBoard = {
                   turn: turn === 'x' ? 'o' : 'x',
-                  winner: isGameFinished ? turn : null,
+                  winner: !!gameResult ? gameResult : null,
                 };
 
                 console.log(`Move: ${insertedMove}`);

@@ -1,4 +1,4 @@
-import { MoveType, TurnType } from '../types';
+import { MoveType, TurnType, GameResultType } from '../types';
 
 const winMoveMatrix = [
   [0, 1, 2],
@@ -16,8 +16,8 @@ const finishGame = (
   turn: TurnType,
   user_1_id: number
 ) => {
-  let gameOver = false;
   const boardState = Array(9).fill(undefined);
+  let winner: GameResultType = '';
 
   moves.forEach(({ position, user_id }: MoveType) => {
     boardState[position] = user_id === user_1_id ? 'x' : 'o';
@@ -25,20 +25,29 @@ const finishGame = (
 
   boardState[move] = turn;
 
-  for (let i = winMoveMatrix.length - 1; i >= 0; i--) {
-    const winMove = winMoveMatrix[i];
+  const isWinner = winMoveMatrix.some(combo => {
+    const [id1, id2, id3] = combo;
+    const marks = [boardState[id1], boardState[id2], boardState[id3]];
+    const [firstMark] = marks;
+    const isWinningCombo =
+      !!firstMark && marks.every(mark => mark === firstMark);
 
-    if (
-      winMove.includes(move) &&
-      boardState[winMove[0]] === turn &&
-      boardState[winMove[1]] === turn &&
-      boardState[winMove[2]] === turn
-    ) {
-      gameOver = true;
-      break;
+    if (isWinningCombo) {
+      winner = firstMark;
+
+      return true;
     }
+
+    return false;
+  });
+
+  let gameResult: GameResultType = (isWinner && winner) || '';
+
+  if (boardState.every(mark => !!mark) && !winner) {
+    gameResult = 'draw';
   }
-  return gameOver;
+
+  return gameResult;
 };
 
 export = finishGame;

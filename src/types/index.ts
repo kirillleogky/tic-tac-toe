@@ -7,6 +7,8 @@ type MoveType = {
 
 type TurnType = 'x' | 'o';
 
+type GameResultType = 'x' | 'o' | 'draw' | '';
+
 type BoardType = {
   id: string;
   turn: TurnType;
@@ -16,4 +18,4 @@ type BoardType = {
   created_at: string;
 };
 
-export { MoveType, BoardType, TurnType };
+export { MoveType, BoardType, TurnType, GameResultType };
