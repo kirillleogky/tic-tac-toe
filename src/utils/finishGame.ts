@@ -1,6 +1,12 @@
-import { MoveType, TurnType, GameResultType } from '../types';
+import {
+  MoveType,
+  TurnType,
+  GameResultType,
+  MarksType,
+  WinningCombinationType,
+} from '../types';
 
-const winMoveMatrix = [
+const winMoveMatrix: WinningCombinationType[] = [
   [0, 1, 2],
   [3, 4, 5],
   [6, 7, 8],
@@ -8,7 +14,7 @@ const winMoveMatrix = [
   [1, 4, 7],
   [2, 5, 8],
   [0, 4, 8],
-  [2, 4, 6]
+  [2, 4, 6],
 ];
 const finishGame = (
   moves: MoveType[],
@@ -18,6 +24,7 @@ const finishGame = (
 ) => {
   const boardState = Array(9).fill(undefined);
   let winner: GameResultType = '';
+  let winningCombo: WinningCombinationType = [];
 
   moves.forEach(({ position, user_id }: MoveType) => {
     boardState[position] = user_id === user_1_id ? 'x' : 'o';
@@ -27,13 +34,18 @@ const finishGame = (
 
   const isWinner = winMoveMatrix.some(combo => {
     const [id1, id2, id3] = combo;
-    const marks = [boardState[id1], boardState[id2], boardState[id3]];
+    const marks: MarksType = [
+      boardState[id1],
+      boardState[id2],
+      boardState[id3],
+    ];
     const [firstMark] = marks;
     const isWinningCombo =
       !!firstMark && marks.every(mark => mark === firstMark);
 
     if (isWinningCombo) {
       winner = firstMark;
+      winningCombo = combo;
 
       return true;
     }
@@ -47,7 +59,7 @@ const finishGame = (
     gameResult = 'draw';
   }
 
-  return gameResult;
+  return { gameResult, winningCombo };
 };
 
 export = finishGame;

@@ -18,4 +18,15 @@ type BoardType = {
   created_at: string;
 };
 
-export { MoveType, BoardType, TurnType, GameResultType };
+type MarksType = TurnType[];
+
+type WinningCombinationType = number[];
+
+export {
+  MoveType,
+  BoardType,
+  TurnType,
+  GameResultType,
+  MarksType,
+  WinningCombinationType,
+};
