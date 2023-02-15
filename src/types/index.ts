@@ -2,7 +2,7 @@ type MoveType = {
   user_id: number;
   position: number;
   board_id: string;
-  id: number;
+  id?: number;
 };
 
 type TurnType = 'x' | 'o';
@@ -18,6 +18,12 @@ type BoardType = {
   created_at: string;
 };
 
+type UpdatedBoardType = {
+  turn: TurnType;
+  winner: GameResultType | null;
+  winning_combo: WinningCombinationType | null;
+};
+
 type MarksType = TurnType[];
 
 type WinningCombinationType = number[];
@@ -25,6 +31,7 @@ type WinningCombinationType = number[];
 export {
   MoveType,
   BoardType,
+  UpdatedBoardType,
   TurnType,
   GameResultType,
   MarksType,
