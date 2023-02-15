@@ -8,9 +8,6 @@ const resolvers = {
       return await GameService.handleMove(user_id, board_id, position);
     },
   },
-  Query: {
-    getUsers: async () => await GameService.getUsers(),
-  },
 };
 
 export = resolvers;

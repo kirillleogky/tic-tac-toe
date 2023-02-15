@@ -5,7 +5,6 @@ import {
   TurnType,
   WinningCombinationType,
 } from '../types';
-import { knexClient } from '../../knexConfig';
 import Board from '../models/Board';
 import Moves from '../models/Moves';
 import { WIN_MOVE_MATRIX, INITIAL_BOARD_STATE } from '../constants';
@@ -133,13 +132,5 @@ export default class GameService {
     }
 
     return { gameResult, winningCombo };
-  }
-  static async getUsers() {
-    try {
-      return await knexClient('users');
-    } catch (error) {
-      console.log(`Error ${error}`);
-      throw error;
-    }
   }
 }
