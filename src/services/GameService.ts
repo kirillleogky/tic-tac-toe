@@ -55,6 +55,8 @@ export default class GameService {
     const { turn, user_1_id } = await this.getBoardData(userId, boardId);
     const moves = await this.getMovesData(boardId, position);
 
+    console.log('moves', moves);
+
     const { gameResult, winningCombo } = this.finishGame(
       moves,
       position,
