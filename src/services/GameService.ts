@@ -55,8 +55,6 @@ export default class GameService {
     const { turn, user_1_id } = await this.getBoardData(userId, boardId);
     const moves = await this.getMovesData(boardId, position);
 
-    console.log('moves', moves);
-
     const { gameResult, winningCombo } = this.finishGame(
       moves,
       position,
@@ -105,7 +103,7 @@ export default class GameService {
     });
 
     INITIAL_BOARD_STATE[move] = turn;
-
+    console.log('moves', moves, 'INITIAL_BOARD_STATE', INITIAL_BOARD_STATE);
     const isWinner = WIN_MOVE_MATRIX.some(combo => {
       const [id1, id2, id3] = combo;
       const marks: MarksType = [
