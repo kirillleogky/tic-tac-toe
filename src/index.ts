@@ -1,5 +1,6 @@
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
+import { InMemoryLRUCache } from '@apollo/utils.keyvaluecache';
 
 import { typeDefs, resolvers } from './schemas';
 
@@ -10,6 +11,7 @@ const { PORT } = process.env;
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  cache: new InMemoryLRUCache(),
 });
 
 const startServer = async (): Promise<void> => {
