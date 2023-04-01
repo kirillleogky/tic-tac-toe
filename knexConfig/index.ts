@@ -1,6 +1,8 @@
 import knex from 'knex';
 import dotenv from 'dotenv';
 
+import { DEFAULT_KNEX_PORT } from '../src/constants';
+
 if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
 }
@@ -10,7 +12,7 @@ export const knexClient = knex({
   client: 'pg',
   connection: {
     host: PG_HOST,
-    port: Number(PG_PORT) || 5432,
+    port: Number(PG_PORT) || DEFAULT_KNEX_PORT,
     user: PG_USER,
     password: PG_PASSWORD,
     database: PG_DATABASE,

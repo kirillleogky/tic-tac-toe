@@ -1,3 +1,5 @@
+type Nullable<T> = T | null;
+
 type MoveType = {
   user_id: number;
   position: number;
@@ -7,26 +9,37 @@ type MoveType = {
 
 type TurnType = 'x' | 'o';
 
-type GameResultType = 'x' | 'o' | 'draw' | '';
+type GameResultType = TurnType | 'draw' | '';
 
 type BoardType = {
   id: string;
   turn: TurnType;
   user_1_id: number;
-  user_2_id: number | null;
+  user_2_id: Nullable<number>;
   winner: string;
   created_at: string;
 };
 
 type UpdatedBoardType = {
   turn: TurnType;
-  winner: GameResultType | null;
-  winning_combo: WinningCombinationType | null;
+  winner: Nullable<GameResultType>;
+  winning_combo: Nullable<WinningCombinationType>;
 };
 
 type MarksType = TurnType[];
 
-type WinningCombinationType = number[];
+type WinningCombinationType = [number, number, number];
+
+type GameResultDataType = {
+  gameResult: GameResultType;
+  winningCombo: Nullable<WinningCombinationType>;
+};
+
+type WinnerDataType = {
+  isWinner: boolean;
+  winner: Nullable<GameResultType>;
+  winningCombo: Nullable<WinningCombinationType>;
+};
 
 export {
   MoveType,
@@ -36,4 +49,6 @@ export {
   GameResultType,
   MarksType,
   WinningCombinationType,
+  GameResultDataType,
+  WinnerDataType,
 };

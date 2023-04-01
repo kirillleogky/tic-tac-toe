@@ -1,17 +1,51 @@
 import {
+  GameResultDataType,
   GameResultType,
   MarksType,
   MoveType,
   TurnType,
+  WinnerDataType,
   WinningCombinationType,
 } from '../types';
-import Board from '../models/Board';
-import Moves from '../models/Moves';
-import { WIN_MOVE_MATRIX, INITIAL_BOARD_STATE } from '../constants';
+import { getBoardById, updateBoard } from '../models/Board';
+import { getMovesByBoardId, addMove } from '../models/Moves';
+import {
+  WIN_MOVE_MATRIX,
+  INITIAL_BOARD_STATE,
+  FIRST_BOARD_POSITION,
+  LAST_BOARD_POSITION,
+} from '../constants';
 
 export default class GameService {
-  static async getBoardData(userId: number, boardId: string) {
-    const boardState = await Board.getBoardById(boardId);
+  private userId: number;
+  private boardId: string;
+  private position: number;
+  private turn: TurnType;
+  private firstUserId: number;
+  private movesList: MoveType[];
+  private gameResultData: GameResultDataType;
+  private winnerData: WinnerDataType;
+
+  constructor(userId: number, boardId: string, position: number) {
+    this.userId = userId;
+    this.boardId = boardId;
+    this.position = position;
+    this.turn = 'x';
+    this.firstUserId = 0;
+    this.movesList = [];
+    this.gameResultData = {
+      gameResult: '',
+      winningCombo: null,
+    };
+    this.winnerData = {
+      isWinner: false,
+      winner: null,
+      winningCombo: null,
+    };
+  }
+
+  private async getBoardData() {
+    const boardState = await getBoardById(this.boardId);
 
     if (!boardState) {
       throw new Error('no existing board');
@@ -19,56 +53,56 @@ export default class GameService {
 
     const { turn, user_1_id, user_2_id } = boardState;
 
-    if (userId !== user_1_id && userId !== user_2_id) {
+    if (this.userId !== user_1_id && this.userId !== user_2_id) {
       throw new Error('invalid user');
     }
 
-    if (userId === user_1_id || userId === user_2_id) {
+    if (this.userId === user_1_id || this.userId === user_2_id) {
       if (
-        (userId === user_1_id && turn !== 'x') ||
-        (userId === user_2_id && turn !== 'o')
+        (this.userId === user_1_id && turn !== 'x') ||
+        (this.userId === user_2_id && turn !== 'o')
       ) {
         throw new Error('not the right turn');
       }
 
-      return { turn, user_1_id };
+      this.turn = turn;
+      this.firstUserId = user_1_id;
     } else {
       throw new Error('wrong related user id');
     }
   }
 
-  static async getMovesData(boardId: string, currentPosition: number) {
-    const moveState = await Moves.getMovesByBoardId(boardId);
+  private async getMovesData() {
+    const moveState = await getMovesByBoardId(this.boardId);
 
     if (
-      moveState.find(m => m.position === currentPosition) ||
-      parseInt(String(currentPosition)) !== currentPosition ||
-      currentPosition > 8 ||
-      currentPosition < 0
+      moveState.find(move => move.position === this.position) ||
+      parseInt(String(this.position)) !== this.position ||
+      this.position > LAST_BOARD_POSITION ||
+      this.position < FIRST_BOARD_POSITION
     ) {
       throw new Error('invalid move');
     }
 
-    return moveState;
+    this.movesList = moveState;
   }
-  static async handleMove(userId: number, boardId: string, position: number) {
-    const { turn, user_1_id } = await this.getBoardData(userId, boardId);
-    const moves = await this.getMovesData(boardId, position);
 
-    const { gameResult, winningCombo } = this.finishGame(
-      moves,
-      position,
-      turn,
-      user_1_id
-    );
+  async handleMove() {
+    await this.getBoardData();
+    await this.getMovesData();
+
+    this.finishGame();
 
     const insertedMove = {
-      user_id: userId,
-      board_id: boardId,
-      position,
+      user_id: this.userId,
+      board_id: this.boardId,
+      position: this.position,
     };
+
+    const { gameResult, winningCombo } = this.gameResultData;
+
     const updatedBoard = {
-      turn: turn === 'x' ? 'o' : ('x' as TurnType),
+      turn: this.turn === 'x' ? 'o' : ('x' as TurnType),
       winner: gameResult ? gameResult : null,
       winning_combo: gameResult ? winningCombo : null,
     };
@@ -76,33 +110,21 @@ export default class GameService {
     console.log(`Move: ${insertedMove}`);
     console.log(`Board: ${updatedBoard}`);
 
-    return Moves.addMove(insertedMove)
-      .then(() => {
-        Board.updateBoard(updatedBoard, boardId);
-      })
-      .then(() => {
-        return { success: true };
-      })
-      .catch(error => {
-        console.log(`Error ${error}`);
-        throw error;
-      });
+    try {
+      await addMove(insertedMove);
+
+      await updateBoard(updatedBoard, this.boardId);
+
+      return { success: true };
+    } catch (error) {
+      console.log(`Error ${error}`);
+      throw error;
+    }
   }
 
-  static finishGame(
-    moves: MoveType[],
-    move: number,
-    turn: TurnType,
-    user_1_id: number
-  ) {
+  private processingWinner() {
     let winner: GameResultType = '';
-    let winningCombo: WinningCombinationType = [];
-
-    moves.forEach(({ position, user_id }: MoveType) => {
-      INITIAL_BOARD_STATE[position] = user_id === user_1_id ? 'x' : 'o';
-    });
-
-    INITIAL_BOARD_STATE[move] = turn;
+    let winningCombo: WinningCombinationType = [0, 0, 0];
 
     const isWinner = WIN_MOVE_MATRIX.some(combo => {
       const [id1, id2, id3] = combo;
@@ -125,12 +147,26 @@ export default class GameService {
       return false;
     });
 
+    this.winnerData = { isWinner, winner, winningCombo };
+  }
+
+  private finishGame() {
+    this.movesList.forEach(({ position, user_id }: MoveType) => {
+      INITIAL_BOARD_STATE[position] = user_id === this.firstUserId ? 'x' : 'o';
+    });
+
+    INITIAL_BOARD_STATE[this.position] = this.turn;
+
+    this.processingWinner();
+
+    const { isWinner, winner, winningCombo } = this.winnerData;
+
     let gameResult: GameResultType = (isWinner && winner) || '';
 
     if (INITIAL_BOARD_STATE.every(mark => !!mark) && !winner) {
       gameResult = 'draw';
     }
 
-    return { gameResult, winningCombo };
+    this.gameResultData = { gameResult, winningCombo };
   }
 }
