@@ -13,6 +13,7 @@ import {
   WIN_MOVE_MATRIX,
   FIRST_BOARD_POSITION,
   LAST_BOARD_POSITION,
+  INITIAL_GAME_BOARD_LENGTH,
 } from '../constants';
 
 export default class GameService {
@@ -42,7 +43,7 @@ export default class GameService {
       winner: null,
       winningCombo: null,
     };
-    this.boardState = Array(9).fill(undefined);
+    this.boardState = Array(INITIAL_GAME_BOARD_LENGTH).fill(undefined);
   }
 
   private async getBoardData() {
