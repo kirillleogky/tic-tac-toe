@@ -11,8 +11,6 @@ export const WIN_MOVE_MATRIX: WinningCombinationType[] = [
   [2, 4, 6],
 ];
 
-export const INITIAL_BOARD_STATE = Array(9).fill(undefined);
-
 export const FIRST_BOARD_POSITION = 0;
 export const LAST_BOARD_POSITION = 8;
 

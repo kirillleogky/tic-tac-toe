@@ -152,17 +152,12 @@ export default class GameService {
   }
 
   private finishGame() {
-    console.log('movesList', JSON.parse(JSON.stringify(this.movesList)));
-
     this.movesList.forEach(({ position, user_id }: MoveType) => {
       this.boardState[position] = user_id === this.firstUserId ? 'x' : 'o';
     });
 
     this.boardState[this.position] = this.turn;
-    console.log(
-      'boardState',
-      JSON.parse(JSON.stringify(this.boardState))
-    );
+
     this.processingWinner();
 
     const { isWinner, winner, winningCombo } = this.winnerData;
