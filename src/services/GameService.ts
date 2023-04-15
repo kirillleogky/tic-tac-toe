@@ -11,7 +11,6 @@ import { getBoardById, updateBoard } from '../models/Board';
 import { getMovesByBoardId, addMove } from '../models/Moves';
 import {
   WIN_MOVE_MATRIX,
-  INITIAL_BOARD_STATE,
   FIRST_BOARD_POSITION,
   LAST_BOARD_POSITION,
 } from '../constants';
@@ -25,6 +24,7 @@ export default class GameService {
   private movesList: MoveType[];
   private gameResultData: GameResultDataType;
   private winnerData: WinnerDataType;
+  private boardState: TurnType[];
 
   constructor(userId: number, boardId: string, position: number) {
     this.userId = userId;
@@ -42,6 +42,7 @@ export default class GameService {
       winner: null,
       winningCombo: null,
     };
+    this.boardState = Array(9).fill(undefined);
   }
 
   private async getBoardData() {
@@ -129,9 +130,9 @@ export default class GameService {
     const isWinner = WIN_MOVE_MATRIX.some(combo => {
       const [id1, id2, id3] = combo;
       const marks: MarksType = [
-        INITIAL_BOARD_STATE[id1],
-        INITIAL_BOARD_STATE[id2],
-        INITIAL_BOARD_STATE[id3],
+        this.boardState[id1],
+        this.boardState[id2],
+        this.boardState[id3],
       ];
       const [firstMark] = marks;
       const isWinningCombo =
@@ -154,13 +155,13 @@ export default class GameService {
     console.log('movesList', JSON.parse(JSON.stringify(this.movesList)));
 
     this.movesList.forEach(({ position, user_id }: MoveType) => {
-      INITIAL_BOARD_STATE[position] = user_id === this.firstUserId ? 'x' : 'o';
+      this.boardState[position] = user_id === this.firstUserId ? 'x' : 'o';
     });
 
-    INITIAL_BOARD_STATE[this.position] = this.turn;
+    this.boardState[this.position] = this.turn;
     console.log(
-      'INITIAL_BOARD_STATE',
-      JSON.parse(JSON.stringify(INITIAL_BOARD_STATE))
+      'boardState',
+      JSON.parse(JSON.stringify(this.boardState))
     );
     this.processingWinner();
 
@@ -168,7 +169,7 @@ export default class GameService {
 
     let gameResult: GameResultType = (isWinner && winner) || '';
 
-    if (INITIAL_BOARD_STATE.every(mark => !!mark) && !winner) {
+    if (this.boardState.every(mark => !!mark) && !winner) {
       gameResult = 'draw';
     }
 
