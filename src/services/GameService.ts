@@ -156,7 +156,7 @@ export default class GameService {
     });
 
     INITIAL_BOARD_STATE[this.position] = this.turn;
-
+    console.log('INITIAL_BOARD_STATE', INITIAL_BOARD_STATE);
     this.processingWinner();
 
     const { isWinner, winner, winningCombo } = this.winnerData;
